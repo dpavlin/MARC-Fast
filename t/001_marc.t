@@ -18,20 +18,23 @@ $param{marcdb} = '/foo/bar/file';
 
 throws_ok { $marc = MARC::Fast->new(%param); } qr/foo.bar/, "marcdb exist";
 
-$param{marcdb} = '../unimarc.iso';
+$param{marcdb} = 'data/unimarc.iso';
 
-ok($marc = MARC::Fast->new(%param), "new");
+SKIP: {
+	skip "no ",$param{marcdb}," test file ", 18 unless (-e $param{marcdb});
 
-isa_ok ($marc, 'MARC::Fast');
+	ok($marc = MARC::Fast->new(%param), "new");
 
-cmp_ok($marc->count, '==', scalar @{$marc->{leaders}}, "count == leaders");
-cmp_ok($marc->count, '==', scalar @{$marc->{fh_offset}}, "count == fh_offset");
+	isa_ok ($marc, 'MARC::Fast');
 
-ok(! $marc->fetch(0), "fetch 0");
-ok($marc->fetch($marc->count), "fetch max:".$marc->count);
-ok(! $marc->fetch($marc->count + 1), "fetch max+1:".($marc->count+1));
+	cmp_ok($marc->count, '==', scalar @{$marc->{leaders}}, "count == leaders");
+	cmp_ok($marc->count, '==', scalar @{$marc->{fh_offset}}, "count == fh_offset");
 
-foreach (1 .. 10) {
-	ok($marc->fetch($_), "fetch $_");
+	ok(! $marc->fetch(0), "fetch 0");
+	ok($marc->fetch($marc->count), "fetch max:".$marc->count);
+	ok(! $marc->fetch($marc->count + 1), "fetch max+1:".($marc->count+1));
+
+	foreach (1 .. 10) {
+		ok($marc->fetch($_), "fetch $_");
+	}
 }
-
