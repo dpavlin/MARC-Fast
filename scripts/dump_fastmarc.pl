@@ -20,7 +20,7 @@ print STDERR "$file has ",$marc->count," records...\n\n";
 for my $mfn (1 .. $marc->count) {
 	my $rec = $marc->fetch($mfn) || next;
 	print "REC $mfn\n";
-	foreach my $f (keys %{$rec}) {
+	foreach my $f (sort keys %{$rec}) {
 		print "$f\t",$rec->{$f},"\n";
 	}
 	print "\n";
