@@ -7,7 +7,7 @@ use Data::Dumper;
 BEGIN {
 	use Exporter ();
 	use vars qw ($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-	$VERSION     = 0.01;
+	$VERSION     = 0.02;
 	@ISA         = qw (Exporter);
 	#Give a hoot don't pollute, do not export more than needed by default
 	@EXPORT      = qw ();
@@ -196,7 +196,11 @@ sub fetch {
 		my $f = substr($fields,$addr,$len);
 		print STDERR "tag/len/addr $tag [$len] $addr: '$f'\n" if ($self->{debug});
 
-		$row->{$tag} = $f;
+		if ($row->{$tag}) {
+			$row->{$tag} .= $f;
+		} else {
+			$row->{$tag} = $f;
+		}
 
 		my $del = substr($fields,$addr+$len-1,1);
 
