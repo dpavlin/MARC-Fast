@@ -17,22 +17,24 @@ my $marc = new MARC::Fast(
 	debug => $opt{'d'},
 );
 
-print STDERR "$file has ",$marc->count," records...\n";
 
 my $min = 1;
 my $max = $marc->count;
 
 if (my $mfn = $opt{'n'}) {
 	$min = $max = $mfn;
+	print STDERR "Dumping $mfn only\n";
+} else {
+	print STDERR "$file has $max records...\n";
 }
-
-print STDERR "Dumping $min - $max\n" if ($opt{'d'});
 
 for my $mfn ($min .. $max) {
 	my $rec = $marc->fetch($mfn) || next;
+	print Dumper($rec);
 	print "REC $mfn\n";
 	foreach my $f (sort keys %{$rec}) {
-		print "$f\t",$rec->{$f},"\n";
+		print "$f\t", join('', $rec->{$f}) ,"\n";
 	}
 	print "\n";
+	print Dumper($marc->to_hash($mfn));
 }

@@ -59,6 +59,7 @@ sub new {
 	print STDERR "# opening ",$self->{marcdb},"\n" if ($self->{debug});
 
 	open($self->{fh}, $self->{marcdb}) || croak "can't open ",$self->{marcdb},": $!";
+	binmode($self->{fh});
 
 	$self->{count} = 0;
 
@@ -69,7 +70,12 @@ sub new {
 		push @{$self->{fh_offset}}, tell($self->{fh});
 
 		my $leader;
-		read($self->{fh}, $leader, 24);
+		my $len = read($self->{fh}, $leader, 24);
+
+		if ($len < 24) {
+			carp "short read of leader, aborting\n";
+			last;
+		}
 
 		# Byte        Name
 		# ----        ----
@@ -103,7 +109,12 @@ sub new {
 		push @{$self->{leaders}}, $leader;
 
 		# skip to next record
-		seek($self->{fh},substr($leader,0,5)-24,1);
+		my $o = substr($leader,0,5);
+		if ($o > 24) {
+			seek($self->{fh},$o-24,1) if ($o);
+		} else {
+			last;
+		}
 
 	}
 
@@ -196,11 +207,7 @@ sub fetch {
 		my $f = substr($fields,$addr,$len);
 		print STDERR "tag/len/addr $tag [$len] $addr: '$f'\n" if ($self->{debug});
 
-		if ($row->{$tag}) {
-			$row->{$tag} .= $f;
-		} else {
-			$row->{$tag} = $f;
-		}
+		push @{	$row->{$tag} }, $f;
 
 		my $del = substr($fields,$addr+$len-1,1);
 
@@ -220,6 +227,75 @@ sub fetch {
 
 	return $row;
 }
+
+
+=head2 to_hash
+
+Read record with specified MFN and convert it to hash
+
+  my $hash = $marc->to_hash($mfn);
+
+It has ability to convert characters (using C<hash_filter>) from MARC
+database before creating structures enabling character re-mapping or quick
+fix-up of data.
+
+This function returns hash which is like this:
+
+  '200' => [
+             {
+               'i1' => '1',
+               'i2' => ' '
+               'a' => 'Goa',
+               'f' => 'Valdo D\'Arienzo',
+               'e' => 'tipografie e tipografi nel XVI secolo',
+             }
+           ],
+
+This method will also create additional field C<000> with MFN.
+
+=cut
+
+sub to_hash {
+	my $self = shift;
+
+	my $mfn = shift || confess "need mfn!";
+
+	# init record to include MFN as field 000
+	my $rec = { '000' => [ $mfn ] };
+
+	my $row = $self->fetch($mfn) || return;
+
+	foreach my $k (keys %{$row}) {
+		foreach my $l (@{$row->{$k}}) {
+
+			# remove end marker
+			$l =~ s/\x1E$//;
+
+			# filter output
+			$l = $self->{'hash_filter'}->($l) if ($self->{'hash_filter'});
+
+			my $val;
+
+			# has identifiers?
+			($val->{'i1'},$val->{'i2'}) = ($1,$2) if ($l =~ s/^([01 #])([01 #])\x1F/\x1F/);
+
+			# has subfields?
+			if ($l =~ m/\x1F/) {
+				foreach my $t (split(/\x1F/,$l)) {
+					next if (! $t);
+					$val->{substr($t,0,1)} = substr($t,1);
+				}
+			} else {
+				$val = $l;
+			}
+
+			push @{$rec->{$k}}, $val;
+		}
+	}
+
+	return $rec;
+}
+
 
 1;
 __END__
