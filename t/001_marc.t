@@ -27,6 +27,8 @@ SKIP: {
 
 	isa_ok ($marc, 'MARC::Fast');
 
+	#diag Dumper($marc);
+
 	cmp_ok($marc->count, '==', scalar @{$marc->{leaders}}, "count == leaders");
 	cmp_ok($marc->count, '==', scalar @{$marc->{fh_offset}}, "count == fh_offset");
 
@@ -36,5 +38,8 @@ SKIP: {
 
 	foreach (1 .. 10) {
 		ok($marc->fetch($_), "fetch $_");
+
+		ok(my $hash = $marc->to_hash($_), "to_hash $_");
+		diag "$_ :: ",Dumper($hash);
 	}
 }

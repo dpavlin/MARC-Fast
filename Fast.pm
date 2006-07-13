@@ -7,7 +7,7 @@ use Data::Dumper;
 BEGIN {
 	use Exporter ();
 	use vars qw ($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-	$VERSION     = 0.03;
+	$VERSION     = 0.04;
 	@ISA         = qw (Exporter);
 	#Give a hoot don't pollute, do not export more than needed by default
 	@EXPORT      = qw ();
@@ -43,7 +43,7 @@ Read MARC database
 	debug => 0,
 	assert => 0,
 	hash_filter => sub {
-		my $t = shift;
+		my ($t, $record_number) = @_;
 		$t =~ s/foo/bar/;
 		return $t;
 	},
@@ -270,14 +270,14 @@ sub to_hash {
 
 	my $row = $self->fetch($mfn) || return;
 
-	foreach my $k (keys %{$row}) {
-		foreach my $l (@{$row->{$k}}) {
+	foreach my $rec_nr (keys %{$row}) {
+		foreach my $l (@{$row->{$rec_nr}}) {
 
 			# remove end marker
 			$l =~ s/\x1E$//;
 
 			# filter output
-			$l = $self->{'hash_filter'}->($l) if ($self->{'hash_filter'});
+			$l = $self->{'hash_filter'}->($l, $rec_nr) if ($self->{'hash_filter'});
 
 			my $val;
 
@@ -294,7 +294,7 @@ sub to_hash {
 					# of this record. Then, new record with same
 					# identifiers will be created.
 					if ($val->{$f}) {
-						push @{$rec->{$k}}, $val;
+						push @{$rec->{$rec_nr}}, $val;
 						$val = {
 							i1 => $val->{i1},
 							i2 => $val->{i2},
@@ -306,7 +306,7 @@ sub to_hash {
 				$val = $l;
 			}
 
-			push @{$rec->{$k}}, $val;
+			push @{$rec->{$rec_nr}}, $val;
 		}
 	}
 
