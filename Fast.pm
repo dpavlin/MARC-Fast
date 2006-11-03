@@ -1,5 +1,5 @@
-
 package MARC::Fast;
+
 use strict;
 use Carp;
 use Data::Dumper;
@@ -7,7 +7,7 @@ use Data::Dumper;
 BEGIN {
 	use Exporter ();
 	use vars qw ($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-	$VERSION     = 0.04;
+	$VERSION     = 0.05;
 	@ISA         = qw (Exporter);
 	#Give a hoot don't pollute, do not export more than needed by default
 	@EXPORT      = qw ();
@@ -313,17 +313,32 @@ sub to_hash {
 	return $rec;
 }
 
+=head2 to_ascii
+
+  print $marc->to_ascii( 42 );
+
+=cut
+
+sub to_ascii {
+	my $self = shift;
+
+	my $mfn = shift || confess "need mfn";
+	my $row = $self->fetch($mfn) || return;
+
+	my $out;
+
+	foreach my $f (sort keys %{$row}) {
+		my $dump = join('', @{ $row->{$f} });
+		$dump =~ s/\x1e$//;
+		$dump =~ s/\x1f/\$/g;
+		$out .= "$f\t$dump\n";
+	}
+
+	return $out;
+}
 
 1;
 __END__
-
-=head1 BUGS
-
-
-
-=head1 SUPPORT
-
-
 
 =head1 AUTHOR
 
@@ -343,6 +358,6 @@ LICENSE file included with this module.
 
 =head1 SEE ALSO
 
-perl(1).
+L<Biblio::Isis>, perl(1).
 
 =cut

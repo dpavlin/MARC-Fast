@@ -67,12 +67,6 @@ for my $mfn ($min .. $max) {
 	my $rec = $marc->fetch($mfn) || next;
 	print "rec is ",Dumper($rec) if ($opt{d});
 	print "REC $mfn\n";
-	foreach my $f (sort keys %{$rec}) {
-		my $dump = join('', @{ $rec->{$f} });
-		$dump =~ s/\x1e$//;
-		$dump =~ s/\x1f/\$/g;
-		print "$f\t$dump\n";
-	}
-	print "\n";
+	print $marc->to_ascii($mfn),"\n";
 	print "hash is ",Dumper($marc->to_hash($mfn)) if ($opt{h});
 }
