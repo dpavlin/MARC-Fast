@@ -1,4 +1,13 @@
 ------------------------------------------------------------------------
+r12 | dpavlin | 2007-06-19 00:32:41 +0200 (Tue, 19 Jun 2007) | 2 lines
+Changed paths:
+   M /trunk/Changes
+   M /trunk/MANIFEST
+   M /trunk/Makefile.PL
+
+release preparation
+
+------------------------------------------------------------------------
 r11 | dpavlin | 2006-11-03 21:34:31 +0100 (Fri, 03 Nov 2006) | 2 lines
 Changed paths:
    M /trunk/Fast.pm
