@@ -11,6 +11,9 @@ BEGIN {
 }
 
 my $debug = shift @ARGV;
+
+my $marc_file = 't/camel.usmarc';
+
 if ( $debug ) {
 	eval { require Data::Dump; };
 	$debug = 0 if ($@);
@@ -25,10 +28,12 @@ $param{marcdb} = '/foo/bar/file';
 
 throws_ok { $marc = MARC::Fast->new(%param); } qr/foo.bar/, "marcdb exist";
 
-$param{marcdb} = 'data/unimarc.iso';
+$param{marcdb} = $marc_file if -e $marc_file;
 
 SKIP: {
 	skip "no $param{marcdb} test file ", 37 unless (-e $param{marcdb});
+
+	diag "marc file: $marc_file";
 
 	ok($marc = MARC::Fast->new(%param), "new");
 
