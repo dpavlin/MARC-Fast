@@ -7,7 +7,7 @@ use Data::Dumper;
 BEGIN {
 	use Exporter ();
 	use vars qw ($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-	$VERSION     = 0.08;
+	$VERSION     = 0.09;
 	@ISA         = qw (Exporter);
 	#Give a hoot don't pollute, do not export more than needed by default
 	@EXPORT      = qw ();
@@ -275,7 +275,7 @@ sub last_leader {
 
 Read record with specified MFN and convert it to hash
 
-  my $hash = $marc->to_hash($mfn);
+  my $hash = $marc->to_hash( $mfn, include_subfields => 1, );
 
 It has ability to convert characters (using C<hash_filter>) from MARC
 database before creating structures enabling character re-mapping or quick
@@ -302,6 +302,8 @@ sub to_hash {
 
 	my $mfn = shift || confess "need mfn!";
 
+	my $args = {@_};
+
 	# init record to include MFN as field 000
 	my $rec = { '000' => [ $mfn ] };
 
@@ -321,24 +323,28 @@ sub to_hash {
 			# has identifiers?
 			($val->{'i1'},$val->{'i2'}) = ($1,$2) if ($l =~ s/^([01 #])([01 #])\x1F/\x1F/);
 
+			my $sf_usage;
+			my @subfields;
+
 			# has subfields?
 			if ($l =~ m/\x1F/) {
 				foreach my $t (split(/\x1F/,$l)) {
 					next if (! $t);
 					my $f = substr($t,0,1);
-					# repeatable subfileds. When we hit first one,
-					# store CURRENT (up to that) in first repetition
-					# of this record. Then, new record with same
-					# identifiers will be created.
+
+					push @subfields, ( $f, $sf_usage->{$f}++ || 0 );
+
+					# repeatable subfiled -- convert it to array
 					if ($val->{$f}) {
-						push @{$rec->{$rec_nr}}, $val;
-						$val = {
-							i1 => $val->{i1},
-							i2 => $val->{i2},
-						};
+						if ( $sf_usage->{$f} == 2 ) {
+							$val->{$f} = [ $val->{$f}, $val ];
+						} else {
+							push @{$val->{$f}}, $val;
+						}
 					}
 					$val->{substr($t,0,1)} = substr($t,1);
 				}
+				$val->{subfields} = [ @subfields ] if $args->{include_subfields};
 			} else {
 				$val = $l;
 			}
