@@ -336,7 +336,7 @@ sub to_hash {
 
 					# repeatable subfiled -- convert it to array
 					if ($val->{$f}) {
-						if ( $sf_usage->{$f} == 2 ) {
+						if ( ref($val->{$f}) ne 'ARRAY' ) {
 							$val->{$f} = [ $val->{$f}, $val ];
 						} else {
 							push @{$val->{$f}}, $val;
