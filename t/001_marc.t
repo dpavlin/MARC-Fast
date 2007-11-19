@@ -5,6 +5,7 @@ use blib;
 
 use Test::More tests => 63;
 use Test::Exception;
+use Data::Dump qw/dump/;
 
 BEGIN {
 	use_ok( 'MARC::Fast' );
@@ -13,11 +14,6 @@ BEGIN {
 my $debug = shift @ARGV;
 
 my $marc_file = 't/camel.usmarc';
-
-if ( $debug ) {
-	eval { require Data::Dump; };
-	$debug = 0 if ($@);
-}
 
 my $marc;
 my %param;

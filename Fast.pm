@@ -2,7 +2,7 @@ package MARC::Fast;
 
 use strict;
 use Carp;
-use Data::Dumper;
+use Data::Dump qw/dump/;
 
 BEGIN {
 	use Exporter ();
@@ -124,6 +124,7 @@ sub new {
 
 		# skip to next record
 		my $o = substr($leader,0,5);
+		warn "# in record ", $self->{count}," record length isn't number but: ",dump($o),"\n" unless $o =~ m/^\d+$/;
 		if ($o > 24) {
 			seek($self->{fh},$o-24,1) if ($o);
 		} else {

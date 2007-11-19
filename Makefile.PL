@@ -9,6 +9,7 @@ WriteMakefile(
     PREREQ_PM    => {
 	'Test::Simple' => 0.44,
 	'Test::Exception' => 0,
+	'Data::Dump' => 0,
 	'Carp' => 0,
     },
 );
