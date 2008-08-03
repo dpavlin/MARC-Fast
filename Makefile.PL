@@ -18,7 +18,7 @@ sub MY::postamble {
 	return <<'MAKE_MORE';
 
 changelog:
-	svn update && svn -v log > Changes
+	svk update && svk log -v > Changes
 
 cpan:
 	make clean
