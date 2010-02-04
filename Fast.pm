@@ -384,6 +384,27 @@ sub to_ascii {
 1;
 __END__
 
+=head1 UTF-8 ENCODING
+
+This module does nothing with encoding. But, since MARC format is byte
+oriented even when using UTF-8 which has variable number of bytes for each
+character, file is opened in binary mode.
+
+As a result, all scalars recturned to perl don't have utf-8 flag. Solution is
+to use C<hash_filter> and L<Encode> to decode utf-8 encoding like this:
+
+  use Encode;
+
+  my $marc = new MARC::Fast(
+  	marcdb => 'utf8.marc',
+	hash_filter => sub {
+		Encode::decode( 'utf-8', $_[0] );
+	},
+  );
+
+This will affect C<to_hash>, but C<fetch> will still return binary representation
+since it doesn't support C<hash_filter>.
+
 =head1 AUTHOR
 
 	Dobrica Pavlinusic
