@@ -88,6 +88,7 @@ sub new {
 
 		if ($len < 24) {
 			carp "short read of leader, aborting\n";
+			$self->{count}--;
 			last;
 		}
 
