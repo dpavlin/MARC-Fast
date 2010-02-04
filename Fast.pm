@@ -87,7 +87,7 @@ sub new {
 		my $len = read($self->{fh}, $leader, 24);
 
 		if ($len < 24) {
-			carp "short read of leader, aborting\n";
+			warn "short read of leader, aborting\n";
 			$self->{count}--;
 			last;
 		}
