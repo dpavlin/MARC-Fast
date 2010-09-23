@@ -3,7 +3,7 @@
 use strict;
 use lib 'lib';
 
-use Test::More tests => 7;
+use Test::More tests => 8;
 use Data::Dump qw/dump/;
 
 BEGIN {
@@ -13,7 +13,7 @@ BEGIN {
 
 my $debug = shift @ARGV;
 
-my $marc_file = 't/koha-105405.mrc';
+my $marc_file = 't/koha-232766.mrc';
 
 ok(my $marc = MARC::Fast->new(
 	marcdb => $marc_file,
@@ -27,5 +27,6 @@ diag dump $rec if $debug;
 ok(my $hash = $marc->to_hash(1, include_subfields => 1), "to_hash 1 include_subfields");
 diag dump $hash if $debug;
 
-isa_ok( $hash->{653}->[0]->{'a'}, 'ARRAY' );
+ok( ref $hash->{653}->[0]->{'a'} eq '', 'first occurance not repeatable' );
+ok( ref $hash->{653}->[1]->{'a'} eq 'ARRAY', 'second is repetable' );
 
