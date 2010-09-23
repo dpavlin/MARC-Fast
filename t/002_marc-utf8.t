@@ -16,7 +16,7 @@ my $debug = shift @ARGV;
 my $marc_file = 't/utf8.marc';
 
 ok(my $marc = MARC::Fast->new(
-	marcdb => 't/utf8.marc',
+	marcdb => $marc_file,
 	hash_filter => sub {
 		Encode::decode( 'utf-8', $_[0] );
 	},
