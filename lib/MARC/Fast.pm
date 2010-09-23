@@ -333,18 +333,20 @@ sub to_hash {
 				foreach my $t (split(/\x1F/,$l)) {
 					next if (! $t);
 					my $f = substr($t,0,1);
+					my $v = substr($t,1);
 
 					push @subfields, ( $f, $sf_usage->{$f}++ || 0 );
 
 					# repeatable subfiled -- convert it to array
-					if ($val->{$f}) {
+					if ( defined $val->{$f} ) {
 						if ( ref($val->{$f}) ne 'ARRAY' ) {
-							$val->{$f} = [ $val->{$f}, $val ];
+							$val->{$f} = [ $val->{$f}, $v ];
 						} else {
-							push @{$val->{$f}}, $val;
+							push @{$val->{$f}}, $v;
 						}
+					} else {
+						$val->{$f} = $v;
 					}
-					$val->{substr($t,0,1)} = substr($t,1);
 				}
 				$val->{subfields} = [ @subfields ] if $args->{include_subfields};
 			} else {
