@@ -311,14 +311,14 @@ sub to_hash {
 
 	my $row = $self->fetch($mfn) || return;
 
-	foreach my $rec_nr (keys %{$row}) {
-		foreach my $l (@{$row->{$rec_nr}}) {
+	foreach my $tag (keys %{$row}) {
+		foreach my $l (@{$row->{$tag}}) {
 
 			# remove end marker
 			$l =~ s/\x1E$//;
 
 			# filter output
-			$l = $self->{'hash_filter'}->($l, $rec_nr) if ($self->{'hash_filter'});
+			$l = $self->{'hash_filter'}->($l, $tag) if ($self->{'hash_filter'});
 
 			my $val;
 
@@ -351,7 +351,7 @@ sub to_hash {
 				$val = $l;
 			}
 
-			push @{$rec->{$rec_nr}}, $val;
+			push @{$rec->{$tag}}, $val;
 		}
 	}
 
