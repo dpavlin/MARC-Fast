@@ -11,6 +11,13 @@ WriteMakefile(
 	'Data::Dump' => 0,
 	'Carp' => 0,
     },
+    META_MERGE => {
+        resources => {
+            license => 'http://www.gnu.org/licenses/gpl-2.0.html',
+            bugtracker => 'https://rt.cpan.org/Public/Dist/Display.html?Name=MARC-Fast',
+            repository => 'http://github.com/dpavlin/MARC-Fast'
+        },
+    },
 );
 
 sub MY::postamble {
