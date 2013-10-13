@@ -27,6 +27,10 @@ dump records starting with C<offset>
 
 dump just C<limit> records
 
+=item -n mfn
+
+dump single C<mfn> record (same as C<-o mfn -l 1>)
+
 =item -h
 
 dump result of C<to_hash> on record
@@ -44,17 +48,16 @@ dump tsv file for TokyoCabinet import
 =cut
 
 my %opt;
-getopts('do:l:ht', \%opt);
+getopts('do:l:n:ht', \%opt);
 
-my $file = shift @ARGV || die "usage: $0 [-o offset] [-l limit] [-h] [-d] file.marc\n";
+my $file = shift @ARGV || die "usage: $0 [-o offset] [-l limit] [-n single_mfn] [-h] [-d] [-t] file.marc\n";
 
 my $marc = new MARC::Fast(
 	marcdb => $file,
 	debug => $opt{d},
 );
 
-
-my $min = 1;
+my $min = $opt{o} || 1;
 my $max = $marc->count;
 
 if (my $mfn = $opt{n}) {
@@ -62,7 +65,7 @@ if (my $mfn = $opt{n}) {
 	print STDERR "Dumping $mfn only\n";
 } elsif (my $limit = $opt{l}) {
 	print STDERR "$file has $max records, using first $limit\n";
-	$max = $limit;
+	$max = $min + $limit - 1;
 } else {
 	print STDERR "$file has $max records...\n";
 }
