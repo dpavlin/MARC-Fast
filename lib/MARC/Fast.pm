@@ -327,7 +327,7 @@ sub to_hash {
 			my $val;
 
 			# has identifiers?
-			($val->{'i1'},$val->{'i2'}) = ($1,$2) if ($l =~ s/^([01 #])([01 #])\x1F/\x1F/);
+			($val->{'i1'},$val->{'i2'}) = ($1,$2) if ($l =~ s/^([0-9 #])([0-9 #])\x1F/\x1F/);
 
 			my $sf_usage;
 			my @subfields;
